@@ -1,0 +1,122 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#map {
+    height: 100vh;
+    width: 100%;
+    z-index: 1;
+}
+
+/* Estilos del buscador */
+#searchContainer {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background: #fff;
+    padding: 5px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#searchInput {
+    padding: 8px;
+    width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#searchButton {
+    padding: 8px 12px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#searchButton:hover {
+    background: #218838;
+}
+
+/* Estilos del modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+}
+
+h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+input,
+textarea,
+button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+textarea {
+    height: 80px;
+    resize: none;
+}
+
+button {
+    background: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #218838;
+}
+
+@media (max-width: 600px) {
+    .modal-content {
+        margin: 20% auto;
+        width: 95%;
+    }
+
+    #searchInput {
+        width: 150px;
+    }
+}
