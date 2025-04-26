@@ -10,11 +10,37 @@
     <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
+    <!-- Botón para mostrar la lista -->
+    <button id="showPetsList" class="pets-list-button">Lista de Mascotas</button>
+
     <!-- Mapa -->
     <div id="map"></div>
 
+    <!-- Lista de mascotas -->
+    <div id="petsList" class="pets-list">
+        <div class="pets-list-header">
+            <h2>Mascotas Reportadas</h2>
+            <button id="closePetsList" class="close">×</button>
+        </div>
+        <div id="petsListContent" class="pets-list-content">
+            <!-- Aquí se agregarán las mascotas dinámicamente -->
+        </div>
+    </div>
+
     <!-- Buscador -->
     <div id="searchContainer">
+        <select id="countrySelect">
+            <option value="AR">Argentina</option>
+            <option value="BR">Brasil</option>
+            <option value="CL">Chile</option>
+            <option value="UY">Uruguay</option>
+            <option value="PY">Paraguay</option>
+            <option value="BO">Bolivia</option>
+            <option value="PE">Perú</option>
+            <option value="EC">Ecuador</option>
+            <option value="CO">Colombia</option>
+            <option value="VE">Venezuela</option>
+        </select>
         <input type="text" id="searchInput" placeholder="Buscar ubicación...">
         <button id="searchButton">Buscar</button>
     </div>
@@ -25,10 +51,10 @@
             <span id="closeModal" class="close">×</span>
             <h2>Reportar Mascota Perdida</h2>
             <form id="petForm">
-                <input type="text" id="petName" placeholder="Nombre de la mascota" required>
-                <textarea id="petDescription" placeholder="Descripción (ej. color, raza, características)" required></textarea>
+                <input type="text" id="petName" placeholder="Nombre de la mascota" required autocomplete="off">
+                <textarea id="petDescription" placeholder="Descripción (ej. color, raza, características)" required autocomplete="off"></textarea>
                 <input type="file" id="petPhoto" accept="image/*">
-                <input type="text" id="contactInfo" placeholder="Información de contacto" required>
+                <input type="text" id="contactInfo" placeholder="Información de contacto" required autocomplete="off">
                 <button type="submit">Reportar</button>
             </form>
         </div>
