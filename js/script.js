@@ -70,27 +70,32 @@ map.on('click', function (e) {
 document.getElementById('searchButton').addEventListener('click', function () {
     const query = document.getElementById('searchInput').value;
     const countryCode = document.getElementById('countrySelect').value;
+    const state = document.getElementById('stateSelect').value;
     
     if (!query) {
         alert('Por favor, ingresa una ubicación para buscar.');
         return;
     }
 
+    if (!countryCode) {
+        alert('Por favor, selecciona un país.');
+        return;
+    }
+
+    let searchQuery = query;
+    if (state) {
+        searchQuery = `${query}, ${state}`;
+    }
+
     // Llamada a la API de Nominatim con el código de país seleccionado
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=${countryCode}`)
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&countrycodes=${countryCode}`)
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
                 const { lat, lon } = data[0];
-                map.setView([lat, lon], 15);
-                if (currentMarker) {
-                    map.removeLayer(currentMarker);
-                }
-                currentMarker = L.marker([lat, lon]).addTo(map)
-                    .bindPopup('Ubicación buscada')
-                    .openPopup();
+                map.setView([lat, lon], 14);
             } else {
-                alert(`No se encontró la ubicación en ${document.getElementById('countrySelect').options[document.getElementById('countrySelect').selectedIndex].text}. Intenta con otro término.`);
+                alert(`No se encontró la ubicación. Intenta con otro término.`);
             }
         })
         .catch(error => {
@@ -187,7 +192,7 @@ function updatePetsList() {
         
         // Agregar evento para centrar el mapa en la ubicación de la mascota
         petItem.addEventListener('click', () => {
-            map.setView([markerData.lat, markerData.lng], 15);
+            map.setView([markerData.lat, markerData.lng], 14);
             const marker = markers.find(m => m.id === markerData.id);
             if (marker) {
                 marker.marker.openPopup();
@@ -220,3 +225,42 @@ window.addEventListener('click', function(e) {
 
 // Cargar marcadores guardados al iniciar
 loadSavedMarkers();
+
+// Mapeo de países a sus provincias/estados
+const countryStates = {
+    'AR': ['Buenos Aires', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz', 'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán'],
+    'BR': ['Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Distrito Federal', 'Espírito Santo', 'Goiás', 'Maranhão', 'Mato Grosso', 'Mato Grosso do Sul', 'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí', 'Rio de Janeiro', 'Rio Grande do Norte', 'Rio Grande do Sul', 'Rondônia', 'Roraima', 'Santa Catarina', 'São Paulo', 'Sergipe', 'Tocantins'],
+    'CL': ['Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 'Valparaíso', 'Metropolitana', 'O\'Higgins', 'Maule', 'Ñuble', 'Biobío', 'Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'],
+    'UY': ['Artigas', 'Canelones', 'Cerro Largo', 'Colonia', 'Durazno', 'Flores', 'Florida', 'Lavalleja', 'Maldonado', 'Montevideo', 'Paysandú', 'Río Negro', 'Rivera', 'Rocha', 'Salto', 'San José', 'Soriano', 'Tacuarembó', 'Treinta y Tres'],
+    'PY': ['Asunción', 'Concepción', 'San Pedro', 'Cordillera', 'Guairá', 'Caaguazú', 'Caazapá', 'Itapúa', 'Misiones', 'Paraguarí', 'Alto Paraná', 'Central', 'Ñeembucú', 'Amambay', 'Canindeyú', 'Presidente Hayes', 'Boquerón', 'Alto Paraguay'],
+    'BO': ['Chuquisaca', 'Cochabamba', 'Beni', 'La Paz', 'Oruro', 'Pando', 'Potosí', 'Santa Cruz', 'Tarija'],
+    'PE': ['Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao', 'Cusco', 'Huancavelica', 'Huánuco', 'Ica', 'Junín', 'La Libertad', 'Lambayeque', 'Lima', 'Loreto', 'Madre de Dios', 'Moquegua', 'Pasco', 'Piura', 'Puno', 'San Martín', 'Tacna', 'Tumbes', 'Ucayali'],
+    'EC': ['Azuay', 'Bolívar', 'Cañar', 'Carchi', 'Chimborazo', 'Cotopaxi', 'El Oro', 'Esmeraldas', 'Galápagos', 'Guayas', 'Imbabura', 'Loja', 'Los Ríos', 'Manabí', 'Morona Santiago', 'Napo', 'Orellana', 'Pastaza', 'Pichincha', 'Santa Elena', 'Santo Domingo de los Tsáchilas', 'Sucumbíos', 'Tungurahua', 'Zamora Chinchipe'],
+    'CO': ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés y Providencia', 'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada'],
+    'VE': ['Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital', 'Falcón', 'Guárico', 'Lara', 'Mérida', 'Miranda', 'Monagas', 'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo', 'Vargas', 'Yaracuy', 'Zulia']
+};
+
+// Manejar el cambio de país
+document.getElementById('countrySelect').addEventListener('change', function() {
+    const stateSelectContainer = document.getElementById('stateSelectContainer');
+    const stateSelect = document.getElementById('stateSelect');
+    const selectedCountry = this.value;
+    
+    // Ocultar el contenedor del selector de estado si no hay país seleccionado
+    if (!selectedCountry) {
+        stateSelectContainer.style.display = 'none';
+        return;
+    }
+    
+    // Mostrar el contenedor y cargar las provincias/estados
+    stateSelectContainer.style.display = 'block';
+    stateSelect.innerHTML = '<option value="">Seleccione una provincia</option>';
+    
+    // Agregar las provincias/estados del país seleccionado
+    countryStates[selectedCountry].forEach(state => {
+        const option = document.createElement('option');
+        option.value = state;
+        option.textContent = state;
+        stateSelect.appendChild(option);
+    });
+});

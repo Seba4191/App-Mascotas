@@ -30,6 +30,7 @@
     <!-- Buscador -->
     <div id="searchContainer">
         <select id="countrySelect">
+            <option value="">Seleccione un país</option>
             <option value="AR">Argentina</option>
             <option value="BR">Brasil</option>
             <option value="CL">Chile</option>
@@ -41,6 +42,11 @@
             <option value="CO">Colombia</option>
             <option value="VE">Venezuela</option>
         </select>
+        <div id="stateSelectContainer" style="display: none;">
+            <select id="stateSelect">
+                <option value="">Seleccione una provincia</option>
+            </select>
+        </div>
         <input type="text" id="searchInput" placeholder="Buscar ubicación...">
         <button id="searchButton">Buscar</button>
     </div>
