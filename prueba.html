@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapa de Mascotas Perdidas</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        /* Estilos generales */
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Menú lateral */
+        .side-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 60px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: width 0.3s ease, padding 0.3s ease, background 0.3s ease;
+        }
+        .side-menu.expanded {
+            width: 200px;
+            padding: 10px 0;
+            background: rgba(255, 255, 255, 1);
+        }
+        .menu-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .side-menu.expanded .menu-options {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .menu-option {
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 16px;
+            color: #333;
+        }
+        .menu-option img {
+            width: 24px;
+            height: 24px;
+        }
+        .menu-option span {
+            display: none;
+        }
+        .side-menu.expanded .menu-option span {
+            display: inline;
+        }
+        .menu-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1002;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+        }
+
+        /* Lista de mascotas */
+        .pets-list {
+            display: none;
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            width: 300px;
+            max-height: 60%;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            z-index: 1001;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            padding: 10px;
+        }
+        .pets-list.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(-10px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Menú lateral -->
+<div id="sideMenu" class="side-menu">
+    <button id="toggleMenu" class="menu-toggle">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png" alt="Menú" width="24">
+    </button>
+
+    <div id="menuOptions" class="menu-options">
+        <button id="openPetsList" class="menu-option">
+            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Mascotas" width="24">
+            <span>Lista de Mascotas</span>
+        </button>
+        <button id="openReportForm" class="menu-option">
+            <img src="https://cdn-icons-png.flaticon.com/512/2919/2919592.png" alt="Reportar" width="24">
+            <span>Reportar Mascota</span>
+        </button>
+    </div>
+</div>
+
+<!-- Modal para agregar mascotas -->
+<div id="petModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Reportar Mascota Perdida</h2>
+        <input type="text" id="petName" placeholder="Nombre de la mascota" required><br><br>
+        <input type="text" id="petDescription" placeholder="Descripción" required><br><br>
+        <button id="savePet">Guardar</button>
+    </div>
+</div>
+
+<!-- Lista de mascotas -->
+<div id="petsList" class="pets-list"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // Inicializar mapa
+    var map = L.map('map').setView([-34.6, -58.4], 10); // Buenos Aires
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    var pets = [];
+
+    // Agregar evento para añadir mascota en el mapa
+    map.on('click', function(e) {
+        document.getElementById('petModal').style.display = 'block';
+        currentLatLng = e.latlng;
+    });
+
+    var currentLatLng;
+
+    document.getElementById('savePet').addEventListener('click', function() {
+        var name = document.getElementById('petName').value;
+        var description = document.getElementById('petDescription').value;
+
+        if(name && description && currentLatLng) {
+            var marker = L.marker([currentLatLng.lat, currentLatLng.lng])
+                .addTo(map)
+                .bindPopup('<b>' + name + '</b><br>' + description);
+
+            pets.push({ name, description, lat: currentLatLng.lat, lng: currentLatLng.lng });
+
+            document.getElementById('petModal').style.display = 'none';
+            document.getElementById('petName').value = '';
+            document.getElementById('petDescription').value = '';
+
+            updatePetsList();
+        }
+    });
+
+    function updatePetsList() {
+        var list = document.getElementById('petsList');
+        list.innerHTML = '<h3>Mascotas Perdidas</h3>';
+        pets.forEach(function(pet) {
+            var item = document.createElement('div');
+            item.innerHTML = '<b>' + pet.name + '</b><br>' + pet.description + '<hr>';
+            list.appendChild(item);
+        });
+    }
+
+    // Cerrar modal
+    document.querySelector('.close').addEventListener('click', function() {
+        document.getElementById('petModal').style.display = 'none';
+    });
+
+    // Botones del menú lateral
+    document.getElementById('toggleMenu').addEventListener('click', function() {
+        document.getElementById('sideMenu').classList.toggle('expanded');
+    });
+
+    document.getElementById('openPetsList').addEventListener('click', function() {
+        document.getElementById('petsList').classList.toggle('active');
+        updatePetsList();
+    });
+
+    document.getElementById('openReportForm').addEventListener('click', function() {
+        document.getElementById('petModal').style.display = 'block';
+    });
+</script>
+
+</body>
+</html>

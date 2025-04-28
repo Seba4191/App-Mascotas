@@ -70,32 +70,27 @@ map.on('click', function (e) {
 document.getElementById('searchButton').addEventListener('click', function () {
     const query = document.getElementById('searchInput').value;
     const countryCode = document.getElementById('countrySelect').value;
-    const state = document.getElementById('stateSelect').value;
     
     if (!query) {
         alert('Por favor, ingresa una ubicación para buscar.');
         return;
     }
 
-    if (!countryCode) {
-        alert('Por favor, selecciona un país.');
-        return;
-    }
-
-    let searchQuery = query;
-    if (state) {
-        searchQuery = `${query}, ${state}`;
-    }
-
     // Llamada a la API de Nominatim con el código de país seleccionado
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&countrycodes=${countryCode}`)
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=${countryCode}`)
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
                 const { lat, lon } = data[0];
-                map.setView([lat, lon], 14);
+                map.setView([lat, lon], 15);
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                }
+                currentMarker = L.marker([lat, lon]).addTo(map)
+                    .bindPopup('Ubicación buscada')
+                    .openPopup();
             } else {
-                alert(`No se encontró la ubicación. Intenta con otro término.`);
+                alert(`No se encontró la ubicación en ${document.getElementById('countrySelect').options[document.getElementById('countrySelect').selectedIndex].text}. Intenta con otro término.`);
             }
         })
         .catch(error => {
@@ -192,7 +187,7 @@ function updatePetsList() {
         
         // Agregar evento para centrar el mapa en la ubicación de la mascota
         petItem.addEventListener('click', () => {
-            map.setView([markerData.lat, markerData.lng], 14);
+            map.setView([markerData.lat, markerData.lng], 15);
             const marker = markers.find(m => m.id === markerData.id);
             if (marker) {
                 marker.marker.openPopup();
@@ -204,14 +199,14 @@ function updatePetsList() {
 }
 
 // Manejar el botón de mostrar lista
-document.getElementById('showPetsList').addEventListener('click', function() {
-    document.getElementById('petsList').classList.add('active');
+document.getElementById('showMenu').addEventListener('click', function() {
+    document.getElementById('menuDesplegable').classList.add('active');
     updatePetsList();
 });
 
 // Manejar el botón de cerrar lista
-document.getElementById('closePetsList').addEventListener('click', function() {
-    document.getElementById('petsList').classList.remove('active');
+document.getElementById('closeMenu').addEventListener('click', function() {
+    document.getElementById('menuDesplegable').classList.remove('active');
 });
 
 // Cerrar la lista si se hace clic fuera
@@ -223,44 +218,191 @@ window.addEventListener('click', function(e) {
     }
 });
 
-// Cargar marcadores guardados al iniciar
-loadSavedMarkers();
+// Manejar los clics en las opciones del menú
+document.getElementById('searchPetOption').addEventListener('click', function() {
+    document.getElementById('searchPetModal').style.display = 'block';
+    document.getElementById('menuDesplegable').classList.remove('active');
+});
 
-// Mapeo de países a sus provincias/estados
-const countryStates = {
-    'AR': ['Buenos Aires', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz', 'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán'],
-    'BR': ['Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Distrito Federal', 'Espírito Santo', 'Goiás', 'Maranhão', 'Mato Grosso', 'Mato Grosso do Sul', 'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí', 'Rio de Janeiro', 'Rio Grande do Norte', 'Rio Grande do Sul', 'Rondônia', 'Roraima', 'Santa Catarina', 'São Paulo', 'Sergipe', 'Tocantins'],
-    'CL': ['Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 'Valparaíso', 'Metropolitana', 'O\'Higgins', 'Maule', 'Ñuble', 'Biobío', 'Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'],
-    'UY': ['Artigas', 'Canelones', 'Cerro Largo', 'Colonia', 'Durazno', 'Flores', 'Florida', 'Lavalleja', 'Maldonado', 'Montevideo', 'Paysandú', 'Río Negro', 'Rivera', 'Rocha', 'Salto', 'San José', 'Soriano', 'Tacuarembó', 'Treinta y Tres'],
-    'PY': ['Asunción', 'Concepción', 'San Pedro', 'Cordillera', 'Guairá', 'Caaguazú', 'Caazapá', 'Itapúa', 'Misiones', 'Paraguarí', 'Alto Paraná', 'Central', 'Ñeembucú', 'Amambay', 'Canindeyú', 'Presidente Hayes', 'Boquerón', 'Alto Paraguay'],
-    'BO': ['Chuquisaca', 'Cochabamba', 'Beni', 'La Paz', 'Oruro', 'Pando', 'Potosí', 'Santa Cruz', 'Tarija'],
-    'PE': ['Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao', 'Cusco', 'Huancavelica', 'Huánuco', 'Ica', 'Junín', 'La Libertad', 'Lambayeque', 'Lima', 'Loreto', 'Madre de Dios', 'Moquegua', 'Pasco', 'Piura', 'Puno', 'San Martín', 'Tacna', 'Tumbes', 'Ucayali'],
-    'EC': ['Azuay', 'Bolívar', 'Cañar', 'Carchi', 'Chimborazo', 'Cotopaxi', 'El Oro', 'Esmeraldas', 'Galápagos', 'Guayas', 'Imbabura', 'Loja', 'Los Ríos', 'Manabí', 'Morona Santiago', 'Napo', 'Orellana', 'Pastaza', 'Pichincha', 'Santa Elena', 'Santo Domingo de los Tsáchilas', 'Sucumbíos', 'Tungurahua', 'Zamora Chinchipe'],
-    'CO': ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés y Providencia', 'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada'],
-    'VE': ['Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital', 'Falcón', 'Guárico', 'Lara', 'Mérida', 'Miranda', 'Monagas', 'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo', 'Vargas', 'Yaracuy', 'Zulia']
-};
+document.getElementById('lostPetsOption').addEventListener('click', function() {
+    document.getElementById('lostPetsModal').style.display = 'block';
+    document.getElementById('menuDesplegable').classList.remove('active');
+    updateLostPetsList();
+});
 
-// Manejar el cambio de país
-document.getElementById('countrySelect').addEventListener('change', function() {
-    const stateSelectContainer = document.getElementById('stateSelectContainer');
-    const stateSelect = document.getElementById('stateSelect');
-    const selectedCountry = this.value;
+document.getElementById('settingsOption').addEventListener('click', function() {
+    document.getElementById('settingsModal').style.display = 'block';
+    document.getElementById('menuDesplegable').classList.remove('active');
+});
+
+document.getElementById('contactOption').addEventListener('click', function() {
+    document.getElementById('contactModal').style.display = 'block';
+    document.getElementById('menuDesplegable').classList.remove('active');
+});
+
+// Cerrar todos los modales
+document.querySelectorAll('.modal .close').forEach(function(closeBtn) {
+    closeBtn.addEventListener('click', function() {
+        this.closest('.modal').style.display = 'none';
+    });
+});
+
+// Cerrar modales al hacer clic fuera
+window.addEventListener('click', function(e) {
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+});
+
+// Manejar el formulario de búsqueda
+document.getElementById('searchPetForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('searchPetName').value;
+    const location = document.getElementById('searchPetLocation').value;
     
-    // Ocultar el contenedor del selector de estado si no hay país seleccionado
-    if (!selectedCountry) {
-        stateSelectContainer.style.display = 'none';
+    // Buscar en los marcadores guardados
+    const savedMarkers = JSON.parse(localStorage.getItem('petMarkers')) || [];
+    const results = savedMarkers.filter(marker => {
+        const nameMatch = !name || marker.name.toLowerCase().includes(name.toLowerCase());
+        const locationMatch = !location || marker.description.toLowerCase().includes(location.toLowerCase());
+        return nameMatch && locationMatch;
+    });
+    
+    // Mostrar resultados
+    const searchResults = document.getElementById('searchResults');
+    searchResults.innerHTML = '';
+    
+    if (results.length === 0) {
+        searchResults.innerHTML = '<p>No se encontraron mascotas que coincidan con la búsqueda.</p>';
         return;
     }
     
-    // Mostrar el contenedor y cargar las provincias/estados
-    stateSelectContainer.style.display = 'block';
-    stateSelect.innerHTML = '<option value="">Seleccione una provincia</option>';
-    
-    // Agregar las provincias/estados del país seleccionado
-    countryStates[selectedCountry].forEach(state => {
-        const option = document.createElement('option');
-        option.value = state;
-        option.textContent = state;
-        stateSelect.appendChild(option);
+    results.forEach(marker => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'search-result-item';
+        resultItem.innerHTML = `
+            <h3>${marker.name}</h3>
+            <p>${marker.description}</p>
+            <p>Contacto: ${marker.contact}</p>
+        `;
+        
+        resultItem.addEventListener('click', () => {
+            map.setView([marker.lat, marker.lng], 15);
+            const markerObj = markers.find(m => m.id === marker.id);
+            if (markerObj) {
+                markerObj.marker.openPopup();
+            }
+            document.getElementById('searchPetModal').style.display = 'none';
+        });
+        
+        searchResults.appendChild(resultItem);
     });
+});
+
+// Manejar el formulario de ajustes
+document.getElementById('settingsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const settings = {
+        notifications: document.getElementById('notifications').checked,
+        darkMode: document.getElementById('darkMode').checked,
+        language: document.getElementById('language').value
+    };
+    
+    // Guardar ajustes en localStorage
+    localStorage.setItem('appSettings', JSON.stringify(settings));
+    
+    // Aplicar ajustes
+    if (settings.darkMode) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+    
+    // Cerrar el modal
+    document.getElementById('settingsModal').style.display = 'none';
+});
+
+// Cargar ajustes guardados
+function loadSettings() {
+    const settings = JSON.parse(localStorage.getItem('appSettings')) || {
+        notifications: true,
+        darkMode: false,
+        language: 'es'
+    };
+    
+    document.getElementById('notifications').checked = settings.notifications;
+    document.getElementById('darkMode').checked = settings.darkMode;
+    document.getElementById('language').value = settings.language;
+    
+    if (settings.darkMode) {
+        document.body.classList.add('dark-mode');
+    }
+}
+
+// Cargar ajustes al iniciar
+loadSettings();
+
+// Cargar marcadores guardados al iniciar
+loadSavedMarkers();
+
+
+// Cerrar el menú desplegable al hacer clic fuera
+document.addEventListener('click', function(e) {
+    const menuDesplegable = document.getElementById('menuDesplegable');
+    const menuButton = document.getElementById('showMenu');
+    
+    if (!menuDesplegable.contains(e.target) && !menuButton.contains(e.target)) {
+        menuDesplegable.classList.remove('active');
+    }
+});
+
+// Función para actualizar la lista de mascotas perdidas
+function updateLostPetsList() {
+    const lostPetsList = document.getElementById('lostPetsList');
+    lostPetsList.innerHTML = '';
+    
+    const savedMarkers = JSON.parse(localStorage.getItem('petMarkers')) || [];
+    savedMarkers.forEach(markerData => {
+        const petItem = document.createElement('div');
+        petItem.className = 'pet-item';
+        petItem.innerHTML = `
+            <h3>${markerData.name}</h3>
+            <p>${markerData.description}</p>
+            <p>Contacto: ${markerData.contact}</p>
+        `;
+        
+        petItem.addEventListener('click', () => {
+            map.setView([markerData.lat, markerData.lng], 15);
+            const marker = markers.find(m => m.id === markerData.id);
+            if (marker) {
+                marker.marker.openPopup();
+            }
+            document.getElementById('lostPetsModal').style.display = 'none';
+        });
+        
+        lostPetsList.appendChild(petItem);
+    });
+}
+
+// Manejar el formulario de contacto
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const contactData = {
+        type: document.getElementById('contactType').value,
+        name: document.getElementById('contactName').value,
+        email: document.getElementById('contactEmail').value,
+        message: document.getElementById('contactMessage').value
+    };
+    
+    // Aquí puedes agregar la lógica para enviar el formulario
+    console.log('Datos de contacto:', contactData);
+    alert('Gracias por tu mensaje. Nos pondremos en contacto contigo pronto.');
+    
+    // Cerrar el modal y limpiar el formulario
+    document.getElementById('contactModal').style.display = 'none';
+    this.reset();
 });

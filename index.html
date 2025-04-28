@@ -7,30 +7,87 @@
     <!-- Estilos de Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
     <!-- Botón para mostrar la lista -->
-    <button id="showPetsList" class="pets-list-button">Lista de Mascotas</button>
+    <div class="menu-container">
+        <div class="menu-box">
+            <button id="showMenu" class="menu-button">
+                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png" alt="Menú" width="24">
+            </button>
+        </div>
+    </div>
 
     <!-- Mapa -->
     <div id="map"></div>
 
-    <!-- Lista de mascotas -->
-    <div id="petsList" class="pets-list">
-        <div class="pets-list-header">
-            <h2>Mascotas Reportadas</h2>
-            <button id="closePetsList" class="close">×</button>
+    <!--Menu desplegable -->
+    <div id="menuDesplegable" class="menu-desplegable">       
+        <button id="closeMenu" class="close">×</button>        
+
+        <div class="sidebar">
+            <ul class="menu">
+                <li id="searchPetOption">
+                    <i class="fas fa-search"></i>
+                    <span>Buscar Mascota</span>
+                </li>
+                <li id="lostPetsOption">
+                    <i class="fas fa-list"></i>
+                    <span>Mascotas Perdidas</span>
+                </li>
+                <li id="settingsOption">
+                    <i class="fas fa-cog"></i>
+                    <span>Ajustes</span>
+                </li>
+            </ul>
+            <div class="menu-footer">
+                <li id="contactOption">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contacto</span>
+                </li>
+            </div>
         </div>
-        <div id="petsListContent" class="pets-list-content">
-            <!-- Aquí se agregarán las mascotas dinámicamente -->
+    </div>
+
+    <!-- Modal para mascotas perdidas -->
+    <div id="lostPetsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Mascotas Perdidas</h2>
+            <div id="lostPetsList" class="pets-list-content">
+                <!-- La lista se llenará dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para contacto -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Contacto</h2>
+            <form id="contactForm">
+                <div class="contact-type">
+                    <label>Motivo del contacto:</label>
+                    <select id="contactType" required>
+                        <option value="">Seleccione un motivo</option>
+                        <option value="report">Reporte de mascota</option>
+                        <option value="problem">Problema con la aplicación</option>
+                        <option value="other">Otros</option>
+                    </select>
+                </div>
+                <input type="text" id="contactName" placeholder="Nombre" required>
+                <input type="email" id="contactEmail" placeholder="Email" required>
+                <textarea id="contactMessage" placeholder="Mensaje" required></textarea>
+                <button type="submit">Enviar</button>
+            </form>
         </div>
     </div>
 
     <!-- Buscador -->
     <div id="searchContainer">
         <select id="countrySelect">
-            <option value="">Seleccione un país</option>
             <option value="AR">Argentina</option>
             <option value="BR">Brasil</option>
             <option value="CL">Chile</option>
@@ -42,11 +99,6 @@
             <option value="CO">Colombia</option>
             <option value="VE">Venezuela</option>
         </select>
-        <div id="stateSelectContainer" style="display: none;">
-            <select id="stateSelect">
-                <option value="">Seleccione una provincia</option>
-            </select>
-        </div>
         <input type="text" id="searchInput" placeholder="Buscar ubicación...">
         <button id="searchButton">Buscar</button>
     </div>
@@ -62,6 +114,47 @@
                 <input type="file" id="petPhoto" accept="image/*">
                 <input type="text" id="contactInfo" placeholder="Información de contacto" required autocomplete="off">
                 <button type="submit">Reportar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para buscar mascotas -->
+    <div id="searchPetModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Buscar Mascota</h2>
+            <form id="searchPetForm">
+                <input type="text" id="searchPetName" placeholder="Nombre de la mascota" autocomplete="off">
+                <input type="text" id="searchPetLocation" placeholder="Ubicación" autocomplete="off">
+                <button type="submit">Buscar</button>
+            </form>
+            <div id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Modal para ajustes -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Ajustes</h2>
+            <form id="settingsForm">
+                <div class="setting-item">
+                    <label for="notifications">Notificaciones</label>
+                    <input type="checkbox" id="notifications">
+                </div>
+                <div class="setting-item">
+                    <label for="darkMode">Modo Oscuro</label>
+                    <input type="checkbox" id="darkMode">
+                </div>
+                <div class="setting-item">
+                    <label for="language">Idioma</label>
+                    <select id="language">
+                        <option value="es">Español</option>
+                        <option value="en">English</option>
+                        <option value="pt">Português</option>
+                    </select>
+                </div>
+                <button type="submit">Guardar Cambios</button>
             </form>
         </div>
     </div>
