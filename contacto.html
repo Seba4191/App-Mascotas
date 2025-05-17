@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Encuentra a tu Mascota</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body class="contact-page">
+    <div class="contact-wrapper">
+        <div class="contact-container">
+            <h2 class="contact-title">Contacto</h2>
+            <form id="contactForm" class="contact-form">
+                <div class="contact-type">
+                    <label class="contact-label">Motivo del contacto:</label>
+                    <select id="contactType" required>
+                        <option value="">Seleccione un motivo</option>
+                        <option value="report">Reporte de usuario</option>
+                        <option value="problem">Problema con la aplicación</option>
+                        <option value="other">Otros</option>
+                    </select>
+                </div>
+                <div class="contact-type">
+                    <label class="contact-label">Nombre:</label>
+                    <input type="text" id="contactName" placeholder="Ingrese su nombre" required>
+                </div>
+                <div class="contact-type">
+                    <label class="contact-label">Apellido:</label>
+                    <input type="text" id="contactLastName" placeholder="Ingrese su apellido" required>
+                </div>
+                <div class="contact-type">
+                    <label class="contact-label">Email:</label>
+                    <input type="email" id="contactEmail" placeholder="Ingrese su email" required>
+                </div>
+                <div class="contact-type">
+                    <label class="contact-label">Teléfono:</label>
+                    <input type="number" id="contactPhone" placeholder="Ingrese su teléfono" required pattern="[0-9]*" inputmode="numeric">
+                </div>
+                <div class="contact-type">
+                    <label class="contact-label">Mensaje:</label>
+                    <textarea id="contactMessage" placeholder="Escriba su mensaje aquí" required></textarea>
+                </div>
+                <div class="button-container">
+                    <button type="submit">
+                        <i class="fas fa-paper-plane"></i>
+                        Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="image-container">
+            <img src="imagenes/formulario.jpg" alt="Mascotas">
+            <div class="animated-text">¡Dejanos tu Mensaje!</div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/estilos.css">
 </head>
-<body>
+<body class="index-page">
     <!-- Botón para mostrar la lista -->
     <div class="menu-container">
         <div class="menu-box">
@@ -26,6 +26,7 @@
     <!--Menu desplegable -->
     <div id="menuDesplegable" class="menu-desplegable">       
         <button id="closeMenu" class="close">×</button>        
+        <div class="menu-title">Menú</div>
 
         <div class="sidebar">
             <ul class="menu">
@@ -43,10 +44,12 @@
                 </li>
             </ul>
             <div class="menu-footer">
-                <li id="contactOption">
-                    <i class="fas fa-envelope"></i>
-                    <span>Contacto</span>
-                </li>
+                <a href="contacto.html" style="text-decoration: none; color: inherit;">
+                    <li id="contactOption">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contacto</span>
+                    </li>
+                </a>
             </div>
         </div>
     </div>
@@ -62,58 +65,52 @@
         </div>
     </div>
 
-    <!-- Modal para contacto -->
-    <div id="contactModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Contacto</h2>
-            <form id="contactForm">
-                <div class="contact-type">
-                    <label>Motivo del contacto:</label>
-                    <select id="contactType" required>
-                        <option value="">Seleccione un motivo</option>
-                        <option value="report">Reporte de mascota</option>
-                        <option value="problem">Problema con la aplicación</option>
-                        <option value="other">Otros</option>
-                    </select>
-                </div>
-                <input type="text" id="contactName" placeholder="Nombre" required>
-                <input type="email" id="contactEmail" placeholder="Email" required>
-                <textarea id="contactMessage" placeholder="Mensaje" required></textarea>
-                <button type="submit">Enviar</button>
-            </form>
-        </div>
-    </div>
-
     <!-- Buscador -->
     <div id="searchContainer">
-        <select id="countrySelect">
-            <option value="AR">Argentina</option>
-            <option value="BR">Brasil</option>
-            <option value="CL">Chile</option>
-            <option value="UY">Uruguay</option>
-            <option value="PY">Paraguay</option>
-            <option value="BO">Bolivia</option>
-            <option value="PE">Perú</option>
-            <option value="EC">Ecuador</option>
-            <option value="CO">Colombia</option>
-            <option value="VE">Venezuela</option>
-        </select>
-        <input type="text" id="searchInput" placeholder="Buscar ubicación...">
-        <button id="searchButton">Buscar</button>
+        <div class="search-filters">
+            <select id="countrySelect">
+                <option value="">Seleccione un país</option>
+                <option value="AR">Argentina</option>
+                <option value="BR">Brasil</option>
+                <option value="CL">Chile</option>
+                <option value="UY">Uruguay</option>
+                <option value="PY">Paraguay</option>
+                <option value="BO">Bolivia</option>
+                <option value="PE">Perú</option>
+                <option value="EC">Ecuador</option>
+                <option value="CO">Colombia</option>
+                <option value="VE">Venezuela</option>
+            </select>
+            <select id="stateSelect" style="display: none;">
+                <option value="">Seleccione una provincia</option>
+            </select>
+        </div>
+        <div class="search-input">
+            <input type="text" id="searchInput" placeholder="Buscar ubicación...">
+            <button id="searchButton">Buscar</button>
+        </div>
     </div>
 
     <!-- Modal para el formulario -->
     <div id="petModal" class="modal">
         <div class="modal-content">
             <span id="closeModal" class="close">×</span>
-            <h2>Reportar Mascota Perdida</h2>
+            <h2>Agregar Mascota Perdida</h2>
             <form id="petForm">
+                <div class="photo-upload">
+                    <label for="petPhoto" class="photo-label">
+                        <i class="fas fa-camera"></i>
+                        <span>Agregar Foto</span>
+                    </label>
+                    <input type="file" id="petPhoto" accept="image/*" class="photo-input">
+                </div>
                 <input type="text" id="petName" placeholder="Nombre de la mascota" required autocomplete="off">
                 <textarea id="petDescription" placeholder="Descripción (ej. color, raza, características)" required autocomplete="off"></textarea>
-                <input type="file" id="petPhoto" accept="image/*">
-                <input type="text" id="contactInfo" placeholder="Información de contacto" required autocomplete="off">
-                <button type="submit">Reportar</button>
+                <div class="contact-fields">
+                    <input type="email" id="contactEmail" placeholder="Email de contacto" autocomplete="off">
+                    <input type="number" id="contactPhone" placeholder="Teléfono de contacto" autocomplete="off" pattern="[0-9]*" inputmode="numeric">
+                </div>
+                <button type="submit">Agregar</button>
             </form>
         </div>
     </div>
@@ -125,7 +122,6 @@
             <h2>Buscar Mascota</h2>
             <form id="searchPetForm">
                 <input type="text" id="searchPetName" placeholder="Nombre de la mascota" autocomplete="off">
-                <input type="text" id="searchPetLocation" placeholder="Ubicación" autocomplete="off">
                 <button type="submit">Buscar</button>
             </form>
             <div id="searchResults"></div>

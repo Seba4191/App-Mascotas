@@ -1,5 +1,7 @@
 // Inicializar el mapa centrado en el centro de Argentina (Buenos Aires)
-const map = L.map('map').setView([-38.4161, -63.6167], 5); // Coordenadas aproximadas al centro geográfico de Argentina
+const map = L.map('map', {
+    zoomControl: false
+}).setView([-38.4161, -63.6167], 5); // Coordenadas aproximadas al centro geográfico de Argentina
 
 // Añadir capa de OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -16,6 +18,20 @@ map.setMinZoom(5);  // Nivel de zoom mínimo
 // Array para almacenar los marcadores
 let markers = [];
 let currentMarker = null;
+
+// Objeto con las provincias/estados por país
+const statesByCountry = {
+    'AR': ['Buenos Aires', 'Córdoba', 'Santa Fe', 'Mendoza', 'Tucumán', 'Entre Ríos', 'Salta', 'Misiones', 'Chaco', 'Corrientes', 'Santiago del Estero', 'San Juan', 'Jujuy', 'Río Negro', 'Neuquén', 'Formosa', 'Chubut', 'San Luis', 'Catamarca', 'La Rioja', 'La Pampa', 'Santa Cruz', 'Tierra del Fuego'],
+    'BR': ['São Paulo', 'Río de Janeiro', 'Minas Gerais', 'Bahía', 'Paraná', 'Río Grande do Sul', 'Pernambuco', 'Ceará', 'Pará', 'Santa Catarina', 'Maranhão', 'Goiás', 'Amazonas', 'Espírito Santo', 'Paraíba', 'Río Grande do Norte', 'Mato Grosso', 'Alagoas', 'Piauí', 'Distrito Federal', 'Mato Grosso do Sul', 'Sergipe', 'Rondônia', 'Tocantins', 'Acre', 'Amapá', 'Roraima'],
+    'CL': ['Santiago', 'Valparaíso', 'Concepción', 'La Serena', 'Antofagasta', 'Temuco', 'Rancagua', 'Talca', 'Arica', 'Puerto Montt', 'Chillán', 'Calama', 'Valdivia', 'Quillota', 'Osorno', 'Copiapó', 'Los Ángeles', 'Punta Arenas', 'Curicó', 'Villa Alemana', 'Coronel', 'San Antonio', 'Chiguayante', 'Ovalle', 'Linares', 'Quilpué', 'Melipilla'],
+    'UY': ['Montevideo', 'Canelones', 'Maldonado', 'Rocha', 'Treinta y Tres', 'Cerro Largo', 'Rivera', 'Artigas', 'Salto', 'Paysandú', 'Río Negro', 'Soriano', 'Colonia', 'San José', 'Flores', 'Florida', 'Lavalleja', 'Durazno', 'Tacuarembó'],
+    'PY': ['Asunción', 'Central', 'Alto Paraná', 'Itapúa', 'San Pedro', 'Cordillera', 'Guairá', 'Caaguazú', 'Caazapá', 'Paraguarí', 'Concepción', 'Amambay', 'Canindeyú', 'Presidente Hayes', 'Boquerón', 'Alto Paraguay', 'Ñeembucú', 'Misiones'],
+    'BO': ['La Paz', 'Santa Cruz', 'Cochabamba', 'Potosí', 'Oruro', 'Tarija', 'Chuquisaca', 'Beni', 'Pando'],
+    'PE': ['Lima', 'Arequipa', 'La Libertad', 'Piura', 'Lambayeque', 'Junín', 'Cusco', 'Ancash', 'Ica', 'Tacna', 'Moquegua', 'Huánuco', 'Ayacucho', 'Amazonas', 'Cajamarca', 'San Martín', 'Huancavelica', 'Pasco', 'Tumbes', 'Madre de Dios', 'Ucayali', 'Loreto'],
+    'EC': ['Pichincha', 'Guayas', 'Azuay', 'Manabí', 'El Oro', 'Loja', 'Tungurahua', 'Imbabura', 'Esmeraldas', 'Santo Domingo', 'Los Ríos', 'Chimborazo', 'Cotopaxi', 'Bolívar', 'Carchi', 'Cañar', 'Morona Santiago', 'Napo', 'Pastaza', 'Zamora Chinchipe', 'Sucumbíos', 'Orellana', 'Galápagos'],
+    'CO': ['Bogotá', 'Antioquia', 'Valle del Cauca', 'Cundinamarca', 'Santander', 'Atlántico', 'Bolívar', 'Nariño', 'Córdoba', 'Boyacá', 'Caldas', 'Tolima', 'Huila', 'Cauca', 'Magdalena', 'Meta', 'Risaralda', 'Quindío', 'Cesar', 'Sucre', 'Norte de Santander', 'Casanare', 'La Guajira', 'Chocó', 'Arauca', 'Putumayo', 'San Andrés y Providencia', 'Amazonas', 'Guainía', 'Guaviare', 'Vaupés', 'Vichada'],
+    'VE': ['Distrito Capital', 'Miranda', 'Zulia', 'Carabobo', 'Lara', 'Aragua', 'Bolívar', 'Anzoátegui', 'Táchira', 'Mérida', 'Monagas', 'Falcón', 'Sucre', 'Portuguesa', 'Guárico', 'Barinas', 'Trujillo', 'Yaracuy', 'Apure', 'Vargas', 'Cojedes', 'Delta Amacuro', 'Nueva Esparta', 'Amazonas']
+};
 
 // Cargar marcadores guardados al iniciar
 function loadSavedMarkers() {
@@ -53,6 +69,22 @@ function deleteMarker(id) {
 
 // Manejar clics en el mapa
 map.on('click', function (e) {
+    // Verificar si el clic fue en el menú o sus elementos
+    const menuDesplegable = document.getElementById('menuDesplegable');
+    const menuButton = document.getElementById('showMenu');
+    const clickedElement = e.originalEvent.target;
+    
+    // Si el clic fue en el menú o sus elementos, no hacer nada
+    if (menuDesplegable.contains(clickedElement) || menuButton.contains(clickedElement)) {
+        return;
+    }
+    
+    // Si el menú está abierto, cerrarlo y no hacer nada más
+    if (menuDesplegable.classList.contains('active')) {
+        menuDesplegable.classList.remove('active');
+        return;
+    }
+    
     // Eliminar marcador actual, si existe
     if (currentMarker) {
         map.removeLayer(currentMarker);
@@ -66,29 +98,60 @@ map.on('click', function (e) {
     document.getElementById('petModal').style.display = 'block';
 });
 
-// Manejar el buscador
-document.getElementById('searchButton').addEventListener('click', function () {
+// Manejar el cambio de país
+document.getElementById('countrySelect').addEventListener('change', function() {
+    const stateSelect = document.getElementById('stateSelect');
+    const selectedCountry = this.value;
+    
+    // Limpiar y ocultar el selector de estados si no hay país seleccionado
+    if (!selectedCountry) {
+        stateSelect.style.display = 'none';
+        stateSelect.innerHTML = '<option value="">Seleccione una provincia</option>';
+        return;
+    }
+    
+    // Mostrar y llenar el selector de estados
+    stateSelect.style.display = 'block';
+    stateSelect.innerHTML = '<option value="">Seleccione una provincia</option>';
+    
+    // Agregar las provincias/estados del país seleccionado
+    statesByCountry[selectedCountry].forEach(state => {
+        const option = document.createElement('option');
+        option.value = state;
+        option.textContent = state;
+        stateSelect.appendChild(option);
+    });
+});
+
+// Función para realizar la búsqueda
+function performSearch() {
     const query = document.getElementById('searchInput').value;
     const countryCode = document.getElementById('countrySelect').value;
+    const state = document.getElementById('stateSelect').value;
     
     if (!query) {
         alert('Por favor, ingresa una ubicación para buscar.');
         return;
     }
 
+    if (!countryCode) {
+        alert('Por favor, selecciona un país.');
+        return;
+    }
+
+    // Construir la consulta de búsqueda
+    let searchQuery = query;
+    if (state) {
+        searchQuery = `${query}, ${state}`;
+    }
+
     // Llamada a la API de Nominatim con el código de país seleccionado
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=${countryCode}`)
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&countrycodes=${countryCode}`)
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
                 const { lat, lon } = data[0];
-                map.setView([lat, lon], 15);
-                if (currentMarker) {
-                    map.removeLayer(currentMarker);
-                }
-                currentMarker = L.marker([lat, lon]).addTo(map)
-                    .bindPopup('Ubicación buscada')
-                    .openPopup();
+                map.setView([lat, lon], 13);
             } else {
                 alert(`No se encontró la ubicación en ${document.getElementById('countrySelect').options[document.getElementById('countrySelect').selectedIndex].text}. Intenta con otro término.`);
             }
@@ -97,6 +160,16 @@ document.getElementById('searchButton').addEventListener('click', function () {
             console.error('Error en la búsqueda:', error);
             alert('Hubo un error al buscar la ubicación. Por favor, intenta de nuevo.');
         });
+}
+
+// Manejar el botón de búsqueda
+document.getElementById('searchButton').addEventListener('click', performSearch);
+
+// Manejar la tecla Enter en el campo de búsqueda
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
 });
 
 // Manejar el cierre del modal
@@ -126,11 +199,17 @@ document.getElementById('petForm').addEventListener('submit', function (e) {
 
     const petName = document.getElementById('petName').value;
     const petDescription = document.getElementById('petDescription').value;
-    const contactInfo = document.getElementById('contactInfo').value;
+    const contactEmail = document.getElementById('contactEmail').value;
+    const contactPhone = document.getElementById('contactPhone').value;
     const petPhoto = document.getElementById('petPhoto').files[0];
 
     if (!currentMarker) {
         alert('Por favor, selecciona una ubicación en el mapa.');
+        return;
+    }
+
+    if (!contactEmail && !contactPhone) {
+        alert('Por favor, ingresa al menos un email o un teléfono de contacto.');
         return;
     }
 
@@ -143,7 +222,8 @@ document.getElementById('petForm').addEventListener('submit', function (e) {
         .bindPopup(`
             <strong>${petName}</strong><br>
             ${petDescription}<br>
-            Contacto: ${contactInfo}<br>
+            ${contactEmail ? `Email: ${contactEmail}<br>` : ''}
+            ${contactPhone ? `Teléfono: ${contactPhone}<br>` : ''}
             <button onclick="deleteMarker(${markerId})">Eliminar</button>
         `);
 
@@ -156,7 +236,8 @@ document.getElementById('petForm').addEventListener('submit', function (e) {
         id: markerId,
         name: petName,
         description: petDescription,
-        contact: contactInfo,
+        contactEmail: contactEmail,
+        contactPhone: contactPhone,
         lat: location.lat,
         lng: location.lng
     });
@@ -187,7 +268,7 @@ function updatePetsList() {
         
         // Agregar evento para centrar el mapa en la ubicación de la mascota
         petItem.addEventListener('click', () => {
-            map.setView([markerData.lat, markerData.lng], 15);
+            map.setView([markerData.lat, markerData.lng], 12);
             const marker = markers.find(m => m.id === markerData.id);
             if (marker) {
                 marker.marker.openPopup();
@@ -235,11 +316,6 @@ document.getElementById('settingsOption').addEventListener('click', function() {
     document.getElementById('menuDesplegable').classList.remove('active');
 });
 
-document.getElementById('contactOption').addEventListener('click', function() {
-    document.getElementById('contactModal').style.display = 'block';
-    document.getElementById('menuDesplegable').classList.remove('active');
-});
-
 // Cerrar todos los modales
 document.querySelectorAll('.modal .close').forEach(function(closeBtn) {
     closeBtn.addEventListener('click', function() {
@@ -260,14 +336,11 @@ window.addEventListener('click', function(e) {
 document.getElementById('searchPetForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const name = document.getElementById('searchPetName').value;
-    const location = document.getElementById('searchPetLocation').value;
     
     // Buscar en los marcadores guardados
     const savedMarkers = JSON.parse(localStorage.getItem('petMarkers')) || [];
     const results = savedMarkers.filter(marker => {
-        const nameMatch = !name || marker.name.toLowerCase().includes(name.toLowerCase());
-        const locationMatch = !location || marker.description.toLowerCase().includes(location.toLowerCase());
-        return nameMatch && locationMatch;
+        return !name || marker.name.toLowerCase().includes(name.toLowerCase());
     });
     
     // Mostrar resultados
@@ -289,7 +362,7 @@ document.getElementById('searchPetForm').addEventListener('submit', function(e) 
         `;
         
         resultItem.addEventListener('click', () => {
-            map.setView([marker.lat, marker.lng], 15);
+            map.setView([marker.lat, marker.lng], 12);
             const markerObj = markers.find(m => m.id === marker.id);
             if (markerObj) {
                 markerObj.marker.openPopup();
@@ -348,12 +421,12 @@ loadSettings();
 // Cargar marcadores guardados al iniciar
 loadSavedMarkers();
 
-
 // Cerrar el menú desplegable al hacer clic fuera
 document.addEventListener('click', function(e) {
     const menuDesplegable = document.getElementById('menuDesplegable');
     const menuButton = document.getElementById('showMenu');
     
+    // Si el clic fue fuera del menú y del botón, cerrar el menú
     if (!menuDesplegable.contains(e.target) && !menuButton.contains(e.target)) {
         menuDesplegable.classList.remove('active');
     }
@@ -375,7 +448,7 @@ function updateLostPetsList() {
         `;
         
         petItem.addEventListener('click', () => {
-            map.setView([markerData.lat, markerData.lng], 15);
+            map.setView([markerData.lat, markerData.lng], 12);
             const marker = markers.find(m => m.id === markerData.id);
             if (marker) {
                 marker.marker.openPopup();
@@ -388,21 +461,27 @@ function updateLostPetsList() {
 }
 
 // Manejar el formulario de contacto
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const contactData = {
-        type: document.getElementById('contactType').value,
-        name: document.getElementById('contactName').value,
-        email: document.getElementById('contactEmail').value,
-        message: document.getElementById('contactMessage').value
-    };
-    
-    // Aquí puedes agregar la lógica para enviar el formulario
-    console.log('Datos de contacto:', contactData);
-    alert('Gracias por tu mensaje. Nos pondremos en contacto contigo pronto.');
-    
-    // Cerrar el modal y limpiar el formulario
-    document.getElementById('contactModal').style.display = 'none';
-    this.reset();
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const contactData = {
+                type: document.getElementById('contactType').value,
+                name: document.getElementById('contactName').value,
+                lastName: document.getElementById('contactLastName').value,
+                email: document.getElementById('contactEmail').value,
+                phone: document.getElementById('contactPhone').value,
+                message: document.getElementById('contactMessage').value
+            };
+            
+            // Aquí puedes agregar la lógica para enviar el formulario
+            console.log('Datos de contacto:', contactData);
+            alert('Gracias por tu mensaje. Nos pondremos en contacto contigo pronto.');
+            
+            // Limpiar el formulario
+            this.reset();
+        });
+    }
 });
