@@ -180,7 +180,10 @@ document.getElementById('petForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
     const petName = document.getElementById('petName').value;
-    const petDescription = document.getElementById('petDescription').value;
+    const lostDate = document.getElementById('lostDate').value;
+    const petType = document.getElementById('petType').value;
+    const petBreed = document.getElementById('petBreed').value;
+    const hasCollar = document.querySelector('input[name="hasCollar"]:checked').value;
     const contactPhone = document.getElementById('contactPhone').value;
     const petPhoto = document.getElementById('petPhoto').files[0];
 
@@ -201,6 +204,14 @@ document.getElementById('petForm').addEventListener('submit', function (e) {
 
     const markerId = Date.now(); // ID único para el marcador
 
+    // Crear descripción con la información proporcionada
+    const description = `
+        <p><strong>Fecha perdido:</strong> ${lostDate}</p>
+        <p><strong>Tipo:</strong> ${petType}</p>
+        <p><strong>Raza:</strong> ${petBreed}</p>
+        <p><strong>Collar:</strong> ${hasCollar === 'si' ? 'Sí' : 'No'}</p>
+    `;
+
     // Crear contacto con información proporcionada
     let contactInfo = "";
     if (contactPhone) {
@@ -214,7 +225,7 @@ document.getElementById('petForm').addEventListener('submit', function (e) {
         const imageUrl = e.target.result;
         
         // Crear nuevo marcador con popup y usando el icono predeterminado
-        createPetMarker(markerId, petName, petDescription, contactInfo, selectedLocation, imageUrl);
+        createPetMarker(markerId, petName, description, contactInfo, selectedLocation, imageUrl);
         
         // Cerrar el panel y limpiar
         document.getElementById('addPetPanel').classList.remove('active');

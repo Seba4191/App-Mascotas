@@ -66,7 +66,40 @@
                     </div>
                 </div>
                 <input type="text" id="petName" placeholder="Nombre de la mascota" required autocomplete="off">
-                <textarea id="petDescription" placeholder="Descripción (ej. color, raza, características)" required autocomplete="off"></textarea>
+                <div class="pet-details">
+                    <div class="form-group">
+                        <label for="lostDate">Fecha en que se perdió:</label>
+                        <input type="date" id="lostDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="petType">Tipo de mascota:</label>
+                        <select id="petType" required>
+                            <option value="">Seleccione tipo</option>
+                            <option value="perro">Perro</option>
+                            <option value="gato">Gato</option>
+                            <option value="ave">Ave</option>
+                            <option value="roedor">Roedor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="petBreed">Raza:</label>
+                        <input type="text" id="petBreed" placeholder="Raza de la mascota" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Tenía collar?</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="hasCollar" value="si" required> Sí
+                            </label>
+                            <label>
+                                <input type="radio" name="hasCollar" value="no" required> No
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <div class="contact-fields">
                     <input type="number" id="contactPhone" placeholder="Teléfono de contacto" required autocomplete="off" pattern="[0-9]*" inputmode="numeric">
                 </div>
