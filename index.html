@@ -30,14 +30,6 @@
 
         <div class="sidebar">
             <ul class="menu">
-                <li id="searchPetOption">
-                    <i class="fas fa-search"></i>
-                    <span>Buscar Mascota</span>
-                </li>
-                <li id="lostPetsOption">
-                    <i class="fas fa-list"></i>
-                    <span>Mascotas Perdidas</span>
-                </li>
                 <li id="settingsOption">
                     <i class="fas fa-cog"></i>
                     <span>Ajustes</span>
@@ -53,80 +45,40 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal para mascotas perdidas -->
-    <div id="lostPetsModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Mascotas Perdidas</h2>
-            <div id="lostPetsList" class="pets-list-content">
-                <!-- La lista se llenará dinámicamente -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Buscador -->
-    <div id="searchContainer">
-        <div class="search-filters">
-            <select id="countrySelect">
-                <option value="">Seleccione un país</option>
-                <option value="AR">Argentina</option>
-                <option value="BR">Brasil</option>
-                <option value="CL">Chile</option>
-                <option value="UY">Uruguay</option>
-                <option value="PY">Paraguay</option>
-                <option value="BO">Bolivia</option>
-                <option value="PE">Perú</option>
-                <option value="EC">Ecuador</option>
-                <option value="CO">Colombia</option>
-                <option value="VE">Venezuela</option>
-            </select>
-            <select id="stateSelect" style="display: none;">
-                <option value="">Seleccione una provincia</option>
-            </select>
-        </div>
-        <div class="search-input">
-            <input type="text" id="searchInput" placeholder="Buscar ubicación...">
-            <button id="searchButton">Buscar</button>
-        </div>
-    </div>
-
-    <!-- Modal para el formulario -->
-    <div id="petModal" class="modal">
-        <div class="modal-content">
-            <span id="closeModal" class="close">×</span>
-            <h2>Agregar Mascota Perdida</h2>
-            <form id="petForm">
+    
+    <!-- Panel desplegable para agregar mascota -->
+    <div id="addPetPanel" class="add-pet-panel">
+        <button id="closePetPanel" class="close">×</button>
+        <div class="panel-title">Agregar Mascota</div>
+        <div class="panel-content">
+            <form id="petForm" class="pet-form">
                 <div class="photo-upload">
                     <label for="petPhoto" class="photo-label">
                         <i class="fas fa-camera"></i>
                         <span>Agregar Foto</span>
                     </label>
                     <input type="file" id="petPhoto" accept="image/*" class="photo-input">
+                    <div class="photo-preview" id="photoPreview">
+                        <img id="previewImage" src="#" alt="Vista previa de la imagen">
+                    </div>
+                    <div id="photoError" class="error-message" style="color: red; margin-top: 5px; display: none;">
+                        <i class="fas fa-exclamation-circle"></i> ¡La foto es obligatoria!
+                    </div>
                 </div>
                 <input type="text" id="petName" placeholder="Nombre de la mascota" required autocomplete="off">
                 <textarea id="petDescription" placeholder="Descripción (ej. color, raza, características)" required autocomplete="off"></textarea>
                 <div class="contact-fields">
-                    <input type="email" id="contactEmail" placeholder="Email de contacto" autocomplete="off">
-                    <input type="number" id="contactPhone" placeholder="Teléfono de contacto" autocomplete="off" pattern="[0-9]*" inputmode="numeric">
+                    <input type="number" id="contactPhone" placeholder="Teléfono de contacto" required autocomplete="off" pattern="[0-9]*" inputmode="numeric">
                 </div>
-                <button type="submit">Agregar</button>
+                <button type="submit" class="add-pet-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    Agregar
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- Modal para buscar mascotas -->
-    <div id="searchPetModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Buscar Mascota</h2>
-            <form id="searchPetForm">
-                <input type="text" id="searchPetName" placeholder="Nombre de la mascota" autocomplete="off">
-                <button type="submit">Buscar</button>
-            </form>
-            <div id="searchResults"></div>
-        </div>
-    </div>
+    <!-- Buscador -->    <div class="search-dropdown">        <button id="searchToggle" class="search-toggle-btn"><i class="fas fa-search"></i> Buscador</button>        <div id="searchContainer" class="search-content">            <div class="search-filters">                <select id="countrySelect">                    <option value="">Seleccione un país</option>                    <option value="AR">Argentina</option>                    <option value="BR">Brasil</option>                    <option value="CL">Chile</option>                    <option value="UY">Uruguay</option>                    <option value="PY">Paraguay</option>                    <option value="BO">Bolivia</option>                    <option value="PE">Perú</option>                    <option value="EC">Ecuador</option>                    <option value="CO">Colombia</option>                    <option value="VE">Venezuela</option>                </select>                <select id="stateSelect" style="display: none;">                    <option value="">Seleccione una provincia</option>                </select>            </div>            <div class="search-input">                <input type="text" id="searchInput" placeholder="Buscar ubicación...">                <button id="searchButton">Buscar</button>            </div>        </div>    </div>
 
     <!-- Modal para ajustes -->
     <div id="settingsModal" class="modal">
@@ -160,5 +112,45 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- JavaScript personalizado -->
     <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Referencia al formulario y elementos importantes
+            const petForm = document.getElementById('petForm');
+            const petPhoto = document.getElementById('petPhoto');
+            const photoError = document.getElementById('photoError');
+            
+            // Eliminamos el atributo required para manejar nosotros la validación
+            petPhoto.removeAttribute('required');
+            
+            // Validación al enviar el formulario
+            petForm.addEventListener('submit', function(e) {
+                // Siempre prevenimos el envío primero
+                e.preventDefault();
+                
+                // Verificamos si hay foto
+                if (!petPhoto.files || !petPhoto.files.length) {
+                    // Mostrar mensaje de error
+                    photoError.style.display = 'block';
+                    console.log('Error: No se seleccionó ninguna foto');
+                    return false;
+                } else {
+                    // Ocultar mensaje de error
+                    photoError.style.display = 'none';
+                    console.log('Formulario válido, procediendo a enviar');
+                    // Aquí puedes enviar el formulario manualmente
+                    this.submit();
+                }
+            });
+            
+            // Ocultar el mensaje de error cuando se selecciona una foto
+            petPhoto.addEventListener('change', function() {
+                if (this.files && this.files.length) {
+                    photoError.style.display = 'none';
+                } else {
+                    photoError.style.display = 'block';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

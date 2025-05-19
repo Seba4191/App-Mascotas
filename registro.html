@@ -156,9 +156,9 @@
                 <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirma tu contraseña">
             </div>
             <div class="form-group">
-                <label for="phone">Teléfono</label>
+                <label for="phone">Teléfono (opcional)</label>
                 <div class="phone-group">
-                    <select id="countryCode" name="countryCode" required>
+                    <select id="countryCode" name="countryCode">
                         <option value="+54">Argentina (+54)</option>
                         <option value="+591">Bolivia (+591)</option>
                         <option value="+55">Brasil (+55)</option>
@@ -170,12 +170,12 @@
                         <option value="+598">Uruguay (+598)</option>
                         <option value="+58">Venezuela (+58)</option>
                     </select>
-                    <input type="tel" id="phone" name="phone" required placeholder="Ingresa tu número">
+                    <input type="tel" id="phone" name="phone" placeholder="Ingresa tu número">
                 </div>
             </div>
             <button type="submit" class="btn-register">Crear Cuenta</button>
             <div class="login-link">
-                <a href="index.html">¿Ya tienes una cuenta? Inicia sesión</a>
+                <p>¿Ya tienes una cuenta?<a href="Inicio.html"> Inicia sesión</a></p>
             </div>
         </form>
     </div>
@@ -201,7 +201,7 @@
                 password: password,
                 telefono: {
                     codigo: document.getElementById('countryCode').value,
-                    numero: document.getElementById('phone').value
+                    numero: document.getElementById('phone').value || null // Opcional
                 }
             };
             
