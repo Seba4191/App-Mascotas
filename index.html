@@ -9,135 +9,326 @@
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/estilos.css">
+    <style>
+        /* Estilos para los modales y la pantalla de bienvenida */
+        #mainContent {
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
+            filter: none;
+            transition: filter 0.3s ease;
+        }
+
+        #mainContent.blurred {
+            filter: blur(5px);
+        }
+
+
+
+        /* Estilos para los modales */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .auth-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            opacity: 0;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            width: 90%;
+            max-width: 400px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .auth-modal.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .auth-modal h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-modal .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .auth-modal .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        .auth-modal .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .auth-modal .form-group input:focus {
+            outline: none;
+            border-color: #1b8f5a;
+        }
+
+        .auth-modal .btn-auth {
+            width: 100%;
+            padding: 0.75rem;
+            background: #1b8f5a;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .auth-modal .btn-auth:hover {
+            background: #147847;
+        }
+
+        .auth-modal .error-message {
+            color: #dc2626;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .auth-modal .auth-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .auth-modal .auth-link a {
+            color: #1b8f5a;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .auth-modal .auth-link a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-modal .close-modal {
+            display: none; /* Ocultamos el botón de cerrar */
+        }
+
+        /* Los estilos del contenedor principal y la pantalla de bienvenida se movieron arriba */
+
+        .welcome-screen button {
+            background: white;
+            color: #1b8f5a;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .welcome-screen button:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body class="index-page">
-    <!-- Botón para mostrar la lista -->
-    <div class="menu-container">
-        <div class="menu-box">
-            <button id="showMenu" class="menu-button">
-                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png" alt="Menú" width="24">
-            </button>
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="modal-overlay"></div>
+
+    <!-- Modal de Inicio de Sesión -->
+    <div id="loginModal" class="auth-modal">
+        <h1>Iniciar Sesión</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Correo electrónico</label>
+                <input type="email" id="loginEmail" name="email" required placeholder="ejemplo@correo.com">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Contraseña</label>
+                <input type="password" id="loginPassword" name="password" required placeholder="Ingresa tu contraseña">
+            </div>
+            <button type="submit" class="btn-auth">Iniciar Sesión</button>
+            <div id="loginErrorMessage" class="error-message"></div>
+        </form>
+        <div class="auth-link">
+            <p>¿No tienes una cuenta? <a onclick="closeModal('loginModal', 'registerModal')">Regístrate aquí</a></p>
         </div>
     </div>
 
-    <!-- Mapa -->
-    <div id="map"></div>
+    <!-- Modal de Registro -->
+    <div id="registerModal" class="auth-modal">
+        <h1>Registro</h1>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="registerEmail">Correo electrónico</label>
+                <input type="email" id="registerEmail" name="email" required placeholder="ejemplo@correo.com">
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Contraseña</label>
+                <input type="password" id="registerPassword" name="password" required placeholder="Ingresa tu contraseña">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar Contraseña</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirma tu contraseña">
+            </div>
+            <button type="submit" class="btn-auth">Registrarse</button>
+            <div id="registerErrorMessage" class="error-message"></div>
+        </form>
+        <div class="auth-link">
+            <p>¿Ya tienes una cuenta? <a onclick="closeModal('registerModal', 'loginModal')">Inicia sesión aquí</a></p>
+        </div>
+    </div>
 
-    <!--Menu desplegable -->
-    <div id="menuDesplegable" class="menu-desplegable">       
-        <button id="closeMenu" class="close">×</button>        
-        <div class="menu-title">Menú</div>
-
-        <div class="sidebar">
-            <ul class="menu">
-                <li id="settingsOption">
-                    <i class="fas fa-cog"></i>
-                    <span>Ajustes</span>
-                </li>
-            </ul>
-            <div class="menu-footer">
-                <a href="contacto.html" style="text-decoration: none; color: inherit;">
-                    <li id="contactOption">
-                        <i class="fas fa-envelope"></i>
-                        <span>Contacto</span>
-                    </li>
-                </a>
+    <!-- Contenedor principal de la aplicación -->
+    <div id="mainContent">
+        <!-- Botón para mostrar la lista -->
+        <div class="menu-container">
+            <div class="menu-box">
+                <button id="showMenu" class="menu-button">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png" alt="Menú" width="24">
+                </button>
             </div>
         </div>
-    </div>
-    
-    <!-- Panel desplegable para agregar mascota -->
-    <div id="addPetPanel" class="add-pet-panel">
-        <button id="closePetPanel" class="close">×</button>
-        <div class="panel-title">Agregar Mascota</div>
-        <div class="panel-content">
-            <form id="petForm" class="pet-form">
-                <div class="photo-upload">
-                    <label for="petPhoto" class="photo-label">
-                        <i class="fas fa-camera"></i>
-                        <span>Agregar Foto</span>
-                    </label>
-                    <input type="file" id="petPhoto" accept="image/*" class="photo-input">
-                    <div class="photo-preview" id="photoPreview">
-                        <img id="previewImage" src="#" alt="Vista previa de la imagen">
-                    </div>
-                    <div id="photoError" class="error-message" style="color: red; margin-top: 5px; display: none;">
-                        <i class="fas fa-exclamation-circle"></i> ¡La foto es obligatoria!
-                    </div>
+
+        <!-- Mapa -->
+        <div id="map"></div>
+
+        <!--Menu desplegable -->
+        <div id="menuDesplegable" class="menu-desplegable">       
+            <button id="closeMenu" class="close">×</button>        
+            <div class="menu-title">Menú</div>
+
+            <div class="sidebar">
+                <ul class="menu">
+                    <li id="settingsOption">
+                        <i class="fas fa-cog"></i>
+                        <span>Ajustes</span>
+                    </li>
+                </ul>
+                <div class="menu-footer">
+                    <a href="contacto.html" style="text-decoration: none; color: inherit;">
+                        <li id="contactOption">
+                            <i class="fas fa-envelope"></i>
+                            <span>Contacto</span>
+                        </li>
+                    </a>
                 </div>
-                <input type="text" id="petName" placeholder="Nombre de la mascota" required autocomplete="off">
-                <div class="pet-details">
-                    <div class="form-group">
-                        <label for="lostDate">Fecha en que se perdió:</label>
-                        <input type="date" id="lostDate" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="petType">Tipo de mascota:</label>
-                        <select id="petType" required>
-                            <option value="">Seleccione tipo</option>
-                            <option value="perro">Perro</option>
-                            <option value="gato">Gato</option>
-                            <option value="ave">Ave</option>
-                            <option value="roedor">Roedor</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="petBreed">Raza:</label>
-                        <input type="text" id="petBreed" placeholder="Raza de la mascota" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>¿Tenía collar?</label>
-                        <div class="radio-group">
-                            <label>
-                                <input type="radio" name="hasCollar" value="si" required> Sí
-                            </label>
-                            <label>
-                                <input type="radio" name="hasCollar" value="no" required> No
-                            </label>
+            </div>
+        </div>
+        
+        <!-- Panel desplegable para agregar mascota -->
+        <div id="addPetPanel" class="add-pet-panel">
+            <button id="closePetPanel" class="close">×</button>
+            <div class="panel-title">Agregar Mascota</div>
+            <div class="panel-content">
+                <form id="petForm" class="pet-form">
+                    <div class="photo-upload">
+                        <label for="petPhoto" class="photo-label">
+                            <i class="fas fa-camera"></i>
+                            <span>Agregar Foto</span>
+                        </label>
+                        <input type="file" id="petPhoto" accept="image/*" class="photo-input">
+                        <div class="photo-preview" id="photoPreview">
+                            <img id="previewImage" src="#" alt="Vista previa de la imagen">
+                        </div>
+                        <div id="photoError" class="error-message" style="color: red; margin-top: 5px; display: none;">
+                            <i class="fas fa-exclamation-circle"></i> ¡La foto es obligatoria!
                         </div>
                     </div>
-                </div>
-                <div class="contact-fields">
-                    <input type="number" id="contactPhone" placeholder="Teléfono de contacto" required autocomplete="off" pattern="[0-9]*" inputmode="numeric">
-                </div>
-                <button type="submit" class="add-pet-btn">
-                    <i class="fas fa-plus-circle"></i>
-                    Agregar
-                </button>
-            </form>
-        </div>
-    </div>
+                    <input type="text" id="petName" placeholder="Nombre de la mascota" required autocomplete="off">
+                    <div class="pet-details">
+                        <div class="form-group">
+                            <label for="lostDate">Fecha en que se perdió:</label>
+                            <input type="date" id="lostDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="petType">Tipo de mascota:</label>
+                            <select id="petType" required>
+                                <option value="">Seleccione tipo</option>
+                                <option value="perro">Perro</option>
+                                <option value="gato">Gato</option>
+                                <option value="ave">Ave</option>
+                                <option value="roedor">Roedor</option>
+                            </select>
+                        </div>
 
-    <!-- Buscador -->    <div class="search-dropdown">        <button id="searchToggle" class="search-toggle-btn"><i class="fas fa-search"></i> Buscador</button>        <div id="searchContainer" class="search-content">            <div class="search-filters">                <select id="countrySelect">                    <option value="">Seleccione un país</option>                    <option value="AR">Argentina</option>                    <option value="BR">Brasil</option>                    <option value="CL">Chile</option>                    <option value="UY">Uruguay</option>                    <option value="PY">Paraguay</option>                    <option value="BO">Bolivia</option>                    <option value="PE">Perú</option>                    <option value="EC">Ecuador</option>                    <option value="CO">Colombia</option>                    <option value="VE">Venezuela</option>                </select>                <select id="stateSelect" style="display: none;">                    <option value="">Seleccione una provincia</option>                </select>            </div>            <div class="search-input">                <input type="text" id="searchInput" placeholder="Buscar ubicación...">                <button id="searchButton">Buscar</button>            </div>        </div>    </div>
+                        <div class="form-group">
+                            <label for="petBreed">Raza:</label>
+                            <input type="text" id="petBreed" placeholder="Raza de la mascota" required>
+                        </div>
 
-    <!-- Modal para ajustes -->
-    <div id="settingsModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Ajustes</h2>
-            <form id="settingsForm">
-                <div class="setting-item">
-                    <label for="notifications">Notificaciones</label>
-                    <input type="checkbox" id="notifications">
-                </div>
-                <div class="setting-item">
-                    <label for="darkMode">Modo Oscuro</label>
-                    <input type="checkbox" id="darkMode">
-                </div>
-                <div class="setting-item">
-                    <label for="language">Idioma</label>
-                    <select id="language">
-                        <option value="es">Español</option>
-                        <option value="en">English</option>
-                        <option value="pt">Português</option>
-                    </select>
-                </div>
-                <button type="submit">Guardar Cambios</button>
-            </form>
+                        <div class="form-group">
+                            <label>¿Tenía collar?</label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="hasCollar" value="si" required> Sí
+                                </label>
+                                <label>
+                                    <input type="radio" name="hasCollar" value="no" required> No
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="contact-fields">
+                        <input type="number" id="contactPhone" placeholder="Teléfono de contacto" required autocomplete="off" pattern="[0-9]*" inputmode="numeric">
+                    </div>
+                    <button type="submit" class="add-pet-btn">
+                        <i class="fas fa-plus-circle"></i>
+                        Agregar
+                    </button>
+                </form>
+            </div>
         </div>
+
+        <!-- Buscador -->    <div class="search-dropdown">        <button id="searchToggle" class="search-toggle-btn"><i class="fas fa-search"></i> Buscador</button>        <div id="searchContainer" class="search-content">            <div class="search-filters">                <select id="countrySelect">                    <option value="">Seleccione un país</option>                    <option value="AR">Argentina</option>                    <option value="BR">Brasil</option>                    <option value="CL">Chile</option>                    <option value="UY">Uruguay</option>                    <option value="PY">Paraguay</option>                    <option value="BO">Bolivia</option>                    <option value="PE">Perú</option>                    <option value="EC">Ecuador</option>                    <option value="CO">Colombia</option>                    <option value="VE">Venezuela</option>                </select>                <select id="stateSelect" style="display: none;">                    <option value="">Seleccione una provincia</option>                </select>            </div>            <div class="search-input">                <input type="text" id="searchInput" placeholder="Buscar ubicación...">                <button id="searchButton">Buscar</button>            </div>        </div>    </div>
+
+        <!-- Modal para ajustes -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Ajustes</h2>
+                <form id="settingsForm">
+                    <div class="setting-item">
+                        <label for="notifications">Notificaciones</label>
+                        <input type="checkbox" id="notifications">
+                    </div>
+                    <div class="setting-item">
+                        <label for="darkMode">Modo Oscuro</label>
+                        <input type="checkbox" id="darkMode">
+                    </div>
+                    <div class="setting-item">
+                        <label for="language">Idioma</label>
+                        <select id="language">
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                            <option value="pt">Português</option>
+                        </select>
+                    </div>
+                    <button type="submit">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+
+        <button id="logout" style="position: fixed; bottom: 20px; left: 20px; background: #dc2626; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; z-index: 1000; transition: background-color 0.3s;">Cerrar Sesión</button>
     </div>
 
     <!-- Scripts -->
@@ -146,6 +337,198 @@
     <!-- JavaScript personalizado -->
     <script src="js/script.js"></script>
     <script>
+        // Funciones para manejar los modales
+        function showModal(modalId) {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById(modalId);
+            const mainContent = document.getElementById('mainContent');
+            
+            if (!authenticated) {
+                overlay.style.display = 'block';
+                modal.style.display = 'block';
+                mainContent.classList.add('blurred');
+                modal.classList.add('active');
+            }
+        }
+
+        function closeModal(modalId, toModalId = null) {
+            const modal = document.getElementById(modalId);
+            const overlay = document.getElementById('modalOverlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            
+            if (toModalId) {
+                showModal(toModalId);
+            } else {
+                overlay.style.display = 'none';
+                mainContent.classList.remove('blurred');
+            }
+        }
+
+        function showApp() {
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('mainContent').classList.remove('blurred');
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.querySelectorAll('.auth-modal').forEach(modal => {
+                modal.style.display = 'none';
+                modal.classList.remove('active');
+            });
+            if (window.map) {
+                window.map.invalidateSize();
+            }
+        }
+
+        function hideApp() {
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('mainContent').classList.add('blurred');
+            showModal('loginModal');
+        }
+
+        let authenticated = false;
+        let lastCheck = 0;
+        const CHECK_INTERVAL = 300000; // 5 minutes
+
+        function checkAuthentication() {
+            const now = Date.now();
+            // Solo verificar si han pasado más de 5 minutos desde la última verificación
+            if (now - lastCheck < CHECK_INTERVAL && authenticated) {
+                return Promise.resolve(authenticated);
+            }
+
+            return fetch('check_session.php')
+                .then(response => response.json())
+                .then(data => {
+                    authenticated = data.authenticated;
+                    lastCheck = now;
+                    if (authenticated) {
+                        showApp();
+                    } else {
+                        hideApp();
+                    }
+                    return authenticated;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Si hay un error y el usuario estaba autenticado, mantenemos el estado
+                    if (authenticated) {
+                        return authenticated;
+                    }
+                    authenticated = false;
+                    hideApp();
+                    return false;
+                });
+        }
+
+        // Verificar autenticación al cargar la página
+        checkAuthentication();
+
+        // Verificar autenticación cada vez que se vuelve a la página
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                const now = Date.now();
+                // Solo verificar si han pasado más de 5 minutos desde la última verificación
+                if (now - lastCheck >= CHECK_INTERVAL) {
+                    checkAuthentication();
+                }
+            }
+        });
+
+        // Manejar el formulario de inicio de sesión
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorMessage = document.getElementById('loginErrorMessage');
+            
+            fetch('login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    authenticated = true;
+                    closeModal('loginModal');
+                    showApp();
+                } else {
+                    authenticated = false;
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = data.message || 'Error de autenticación';
+                }
+            })
+            .catch(error => {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error al conectar con el servidor';
+            });
+        });
+
+        // Manejar el formulario de registro
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorMessage = document.getElementById('registerErrorMessage');
+
+            if (password !== confirmPassword) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Las contraseñas no coinciden';
+                return;
+            }
+
+            fetch('register.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('registerModal');
+                    showModal('loginModal');
+                } else {
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = data.message;
+                }
+            })
+            .catch(error => {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error al conectar con el servidor';
+            });
+        });
+
+        // Manejar el cierre de sesión
+        document.getElementById('logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch('logout.php')
+                            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    authenticated = false;
+                    hideApp();
+                }
+            })
+                .catch(error => {
+                    console.error('Error:', error);
+                    hideApp();
+                });
+        });
+
+        // Cerrar modales al hacer clic en el overlay
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this && isAuthenticated()) {
+                closeModal('loginModal');
+                closeModal('registerModal');
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // Referencia al formulario y elementos importantes
             const petForm = document.getElementById('petForm');

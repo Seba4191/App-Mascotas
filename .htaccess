@@ -1,0 +1,6 @@
+# PHP settings
+php_value session.gc_maxlifetime 2592000
+php_value session.cookie_lifetime 2592000
+php_value session.cookie_httponly 1
+php_value session.use_only_cookies 1
+php_value session.cookie_secure 0 

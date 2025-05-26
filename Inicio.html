@@ -76,6 +76,13 @@
             background: #147847;
         }
 
+        .error-message {
+            color: #dc2626;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
         .forgot-password {
             text-align: center;
             margin-top: 1rem;
@@ -104,7 +111,11 @@
                 <input type="password" id="password" name="password" required placeholder="Ingresa tu contraseña">
             </div>
             <button type="submit" class="btn-login">Iniciar Sesión</button>
+            <div id="errorMessage" class="error-message"></div>
         </form>
+        <div class="register-link" style="text-align: center; margin-top: 1rem;">
+            <p>¿No tienes una cuenta? <a href="registro.html" style="color: #1b8f5a; text-decoration: none;">Regístrate aquí</a></p>
+        </div>
     </div>
 
     <script>
@@ -112,9 +123,28 @@
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
             
-            // Aquí puedes agregar la lógica de autenticación
-            console.log('Intento de inicio de sesión con:', { email, password });
+            fetch('login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = 'index.html';
+                } else {
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = data.message;
+                }
+            })
+            .catch(error => {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error al conectar con el servidor';
+            });
         });
     </script>
 </body>

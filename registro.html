@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
+    <title>Registro - App Mascotas</title>
     <style>
         * {
             margin: 0;
@@ -18,47 +18,37 @@
             align-items: center;
             justify-content: center;
             background: linear-gradient(45deg, #1b8f5a, #34d399);
-            padding: 20px;
         }
 
         .register-container {
             background: white;
-            padding: 2.5rem;
+            padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 600px;
+            max-width: 400px;
             margin: 1rem;
         }
 
         .register-container h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 2rem;
-            font-size: 2rem;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
             margin-bottom: 1.5rem;
         }
 
-        .form-row .form-group {
-            flex: 1;
-            margin-bottom: 0;
+        .form-group {
+            margin-bottom: 1rem;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             color: #666;
-            font-size: 1.1rem;
         }
 
         .form-group input {
             width: 100%;
-            padding: 0.85rem;
+            padding: 0.75rem;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
@@ -70,46 +60,32 @@
             border-color: #1b8f5a;
         }
 
-        .phone-group {
-            display: flex;
-            gap: 15px;
-        }
-
-        .phone-group select {
-            width: 180px;
-            padding: 0.85rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            background-color: white;
-            cursor: pointer;
-        }
-
-        .phone-group input {
-            flex: 1;
-        }
-
         .btn-register {
             width: 100%;
-            padding: 1rem;
+            padding: 0.75rem;
             background: #1b8f5a;
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            margin-top: 1.5rem;
         }
 
         .btn-register:hover {
             background: #147847;
         }
 
+        .error-message {
+            color: #dc2626;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
         .login-link {
             text-align: center;
-            margin-top: 1.5rem;
-            font-size: 1.1rem;
+            margin-top: 1rem;
         }
 
         .login-link a {
@@ -120,28 +96,12 @@
         .login-link a:hover {
             text-decoration: underline;
         }
-
-        .password-requirements {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.5rem;
-        }
     </style>
 </head>
 <body>
     <div class="register-container">
         <h1>Registro</h1>
         <form id="registerForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="nombre">Nombre</label>
-                    <input type="text" id="nombre" name="nombre" required placeholder="Ingresa tu nombre">
-                </div>
-                <div class="form-group">
-                    <label for="apellido">Apellido</label>
-                    <input type="text" id="apellido" name="apellido" required placeholder="Ingresa tu apellido">
-                </div>
-            </div>
             <div class="form-group">
                 <label for="email">Correo electrónico</label>
                 <input type="email" id="email" name="email" required placeholder="ejemplo@correo.com">
@@ -149,64 +109,53 @@
             <div class="form-group">
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" name="password" required placeholder="Ingresa tu contraseña">
-                <p class="password-requirements">La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números</p>
             </div>
             <div class="form-group">
                 <label for="confirmPassword">Confirmar Contraseña</label>
                 <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirma tu contraseña">
             </div>
-            <div class="form-group">
-                <label for="phone">Teléfono (opcional)</label>
-                <div class="phone-group">
-                    <select id="countryCode" name="countryCode">
-                        <option value="+54">Argentina (+54)</option>
-                        <option value="+591">Bolivia (+591)</option>
-                        <option value="+55">Brasil (+55)</option>
-                        <option value="+56">Chile (+56)</option>
-                        <option value="+57">Colombia (+57)</option>
-                        <option value="+593">Ecuador (+593)</option>
-                        <option value="+595">Paraguay (+595)</option>
-                        <option value="+51">Perú (+51)</option>
-                        <option value="+598">Uruguay (+598)</option>
-                        <option value="+58">Venezuela (+58)</option>
-                    </select>
-                    <input type="tel" id="phone" name="phone" placeholder="Ingresa tu número">
-                </div>
-            </div>
-            <button type="submit" class="btn-register">Crear Cuenta</button>
-            <div class="login-link">
-                <p>¿Ya tienes una cuenta?<a href="Inicio.html"> Inicia sesión</a></p>
-            </div>
+            <button type="submit" class="btn-register">Registrarse</button>
+            <div id="errorMessage" class="error-message"></div>
         </form>
+        <div class="login-link">
+            <p>¿Ya tienes una cuenta? <a href="Inicio.html">Inicia sesión aquí</a></p>
+        </div>
     </div>
 
     <script>
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Validar que las contraseñas coincidan
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            
+            const errorMessage = document.getElementById('errorMessage');
+
             if (password !== confirmPassword) {
-                alert('Las contraseñas no coinciden');
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Las contraseñas no coinciden';
                 return;
             }
 
-            // Recoger todos los datos del formulario
-            const formData = {
-                nombre: document.getElementById('nombre').value,
-                apellido: document.getElementById('apellido').value,
-                email: document.getElementById('email').value,
-                password: password,
-                telefono: {
-                    codigo: document.getElementById('countryCode').value,
-                    numero: document.getElementById('phone').value || null // Opcional
+            fetch('register.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = 'Inicio.html';
+                } else {
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = data.message;
                 }
-            };
-            
-            // Aquí puedes agregar la lógica de registro
-            console.log('Datos de registro:', formData);
+            })
+            .catch(error => {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error al conectar con el servidor';
+            });
         });
     </script>
 </body>
